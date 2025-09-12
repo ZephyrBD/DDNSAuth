@@ -1,21 +1,19 @@
-package net.zbd;
+package net.zbd.util;
 
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.zbd.DDNSAuth;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
-import static net.zbd.config.allowedCountries;
-import static net.zbd.config.geoipReader;
-import static net.zbd.ddnsauth.logger;
+import static net.zbd.util.ConfigReader.*;
 
-
-public class judge {
+public class JudgeIP {
     @Subscribe
     public void onPreLogin(PreLoginEvent event) {
         InetSocketAddress remoteAddr = event.getConnection().getRemoteAddress();
@@ -25,18 +23,20 @@ public class judge {
         String inputHost = host.map(InetSocketAddress::getHostString).orElse("");
 
         // loopback
-        if (config.allowLoopback && (ip.equals("127.0.0.1") || ip.equals("0.0.0.0"))) {
+        if (allowLoopback && (ip.equals("127.0.0.1") || ip.equals("0.0.0.0"))) {
             return;
         }
 
         // 内网
-        for (String cidr : config.allowedCidrs) {
+        for (String cidr : allowedCidrs) {
             if (ipInCidr(ip, cidr)) return;
         }
 
         // 域名检查
-        if (!config.allowedDomains.contains(inputHost)) {
-            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("请使用正确的域名连接！", NamedTextColor.RED)));
+        if (!allowedDomains.contains(inputHost)) {
+            event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
+                    Component.text(ConfigReader.t("login.invalidDomain"), NamedTextColor.RED)
+            ));
             return;
         }
 
@@ -46,13 +46,16 @@ public class judge {
                 InetAddress inetAddress = InetAddress.getByName(ip);
                 String country = geoipReader.country(inetAddress).getCountry().getIsoCode();
                 if (!allowedCountries.contains(country)) {
-                    logger.warn("拒绝 {} 来自地区 {}", ip, country);
-                    event.setResult(PreLoginEvent.PreLoginComponentResult.denied(Component.text("你的地区不允许访问服务器", NamedTextColor.RED)));
+                    DDNSAuth.getLogger().warn(ConfigReader.t("login.countryDeniedLog",
+                            java.util.Map.of("ip", ip, "country", country)));
+                    event.setResult(PreLoginEvent.PreLoginComponentResult.denied(
+                            Component.text(ConfigReader.t("login.countryDenied"), NamedTextColor.RED)
+                    ));
                 }
             } catch (GeoIp2Exception ge) {
-                logger.error("GeoIP2 查询失败: {}", ip, ge);
+                DDNSAuth.getLogger().error(ConfigReader.t("login.geoipError", java.util.Map.of("ip", ip)), ge);
             } catch (Exception e) {
-                logger.error("IP 查询异常: {}", ip, e);
+                DDNSAuth.getLogger().error(ConfigReader.t("login.ipError", java.util.Map.of("ip", ip)), e);
             }
         }
     }
