@@ -23,6 +23,9 @@ DDNSAuth is a plugin based on the Velocity proxy server. It restricts server acc
    - Download the [GeoLite2 - Country database](https://support.maxmind.com/hc/en-us/articles/4408216129947-Download-and-Update-Databases).
    - Place the database file (`GeoLite2 - Country.mmdb`) in the `plugins/ddnsauth` directory (or the path specified in the configuration file).
 
+4. **Multilingual support**:
+   - You can change the prompt language by modifying the messages.
+
 ## Configuration Instructions
 
 The configuration file is located at `plugins/ddnsauth/config.toml`, and the default content is as follows:
