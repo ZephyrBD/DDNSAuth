@@ -1,74 +1,68 @@
 # DDNSAuth
 
-DDNSAuth 是一个基于 Velocity 代理服务器的插件，用于通过 DDNS 域名、内网 CIDR 网段、地区白名单等方式限制服务器访问，增强服务器的访问控制安全性。
+DDNSAuth is a plugin based on the Velocity proxy server. It restricts server access through methods such as DDNS domain names, internal network CIDR segments, and regional whitelists, enhancing the security of server access control.
 
+## Feature Introduction
 
-## 功能介绍
+- **Domain Name Verification**: Only connections from the DDNS domain names specified in the configuration are allowed.
+- **Internal Network Restriction**: Allows the configuration of specific internal network CIDR segments for direct access.
+- **Loopback Address Control**: It can be configured whether to allow access from loopback addresses such as 127.0.0.1 or 0.0.0.0.
+- **Regional Whitelist**: Verifies the region to which the client IP belongs through the GeoIP2 database, and only allows access from regions within the whitelist.
 
-- **域名验证**：仅允许来自配置中指定的 DDNS 域名的连接
-- **内网限制**：允许配置特定的内网 CIDR 网段直接访问
-- **环回地址控制**：可配置是否允许 127.0.0.1 或 0.0.0.0 等环回地址访问
-- **地区白名单**：通过 GeoIP2 数据库验证客户端 IP 所属地区，仅允许白名单内地区的访问
+## Installation Steps
 
+1. **Environmental Requirements**:
+   - Velocity proxy server (version 3.1.1 and above)
+   - Java version 17 and above
 
-## 安装步骤
+2. **Install the Plugin**:
+   - Place the compiled `DDNSAuth.jar` in the `plugins` directory of the Velocity server.
+   - Start the server, and the plugin will automatically generate a default configuration file.
 
-1. **环境要求**：
-   - Velocity 代理服务器（3.1.1 及以上版本）
-   - Java 17 及以上版本
+3. **Configure the GeoIP2 Database** (Optional, for the regional restriction feature):
+   - Download the [GeoLite2 - Country database](https://support.maxmind.com/hc/en-us/articles/4408216129947-Download-and-Update-Databases).
+   - Place the database file (`GeoLite2 - Country.mmdb`) in the `plugins/ddnsauth` directory (or the path specified in the configuration file).
 
-2. **安装插件**：
-   - 将编译好的 `DDNSAuth.jar` 放入 Velocity 服务器的 `plugins` 目录
-   - 启动服务器，插件会自动生成默认配置文件
+## Configuration Instructions
 
-3. **配置 GeoIP2 数据库**（可选，用于地区限制功能）：
-   - 下载 [GeoLite2-Country 数据库](https://support.maxmind.com/hc/en-us/articles/4408216129947-Download-and-Update-Databases)
-   - 将数据库文件（`GeoLite2-Country.mmdb`）放入 `plugins/ddnsauth` 目录（或配置文件中指定的路径）
-
-
-## 配置说明
-
-配置文件位于 `plugins/ddnsauth/config.toml`，默认内容如下：
+The configuration file is located at `plugins/ddnsauth/config.toml`, and the default content is as follows:
 
 ```toml
-# 允许的 DDNS 域名（客户端连接时使用的域名）
+# Allowed DDNS domain names (the domain names used when clients connect)
 allowedDomains = ["example.com"]
 
-# 允许的内网网段（CIDR 格式，如 "192.168.1.0/24"）
+# Allowed internal network segments (in CIDR format, such as "192.168.1.0/24")
 allowedCidrs = ["192.168.1.0/24"]
 
-# 是否允许 127.0.0.1 和 0.0.0.0 等环回地址访问
+# Whether to allow access from loopback addresses such as 127.0.0.1 and 0.0.0.0
 allowLoopback = true
 
-# 允许的国家（使用 ISO 国家代码，如 CN 表示中国，US 表示美国）
+# Allowed countries (using ISO country codes, e.g., CN for China, US for the United States)
 allowedCountries = ["CN"]
 
-# GeoLite2-Country.mmdb 数据库文件路径
-geoipDatabase = "plugins/ddnsauth/GeoLite2-Country.mmdb"
+# Path to the GeoLite2 - Country.mmdb database file
+geoipDatabase = "plugins/ddnsauth/GeoLite2 - Country.mmdb"
 ```
 
-- `allowedDomains`：客户端必须通过列表中的域名连接服务器，否则会被拒绝
-- `allowedCidrs`：属于这些 CIDR 网段的 IP 会被直接允许访问（跳过域名和国家检查）
-- `allowLoopback`：开启后允许环回地址（本地测试常用）访问
-- `allowedCountries`：仅允许来自这些国家的 IP 访问（需配置 GeoIP2 数据库）
-- `geoipDatabase`：GeoIP2 数据库文件的路径，若文件不存在则国家限制功能失效
+- `allowedDomains`: Clients must connect to the server through the domain names in the list; otherwise, they will be rejected.
+- `allowedCidrs`: IPs belonging to these CIDR segments will be directly allowed to access (skipping domain name and country checks).
+- `allowLoopback`: When enabled, it allows access from loopback addresses (commonly used for local testing).
+- `allowedCountries`: Only allows access from IPs in these countries (requires configuration of the GeoIP2 database).
+- `geoipDatabase`: The path to the GeoIP2 database file. If the file does not exist, the country restriction feature will not work.
 
+## Usage
 
-## 使用方法
+1. Modify the `config.toml` configuration file according to your needs.
+2. Restart the Velocity server to make the configuration take effect.
+3. When clients connect, the plugin will automatically perform verification:
+   - If it does not meet any of the allowed conditions, the client will receive an appropriate rejection message (such as "Please connect using the correct domain name!" or "Your region is not allowed to access the server").
+   - If the verification passes, the client can enter the server normally.
 
-1. 根据需求修改 `config.toml` 配置文件
-2. 重启 Velocity 服务器使配置生效
-3. 客户端连接时，插件会自动进行验证：
-   - 若不符合任何允许条件，会收到相应的拒绝提示（如"请使用正确的域名连接！"或"你的地区不允许访问服务器"）
-   - 验证通过则正常进入服务器
+## License
 
+This project is open - sourced under the [GNU General Public License v2](LICENSE).
 
-## 许可证
+## Acknowledgments
 
-本项目基于 [GNU General Public License v2](LICENSE) 开源。
-
-
-## 致谢
-
-- 依赖 [Velocity API](https://velocitypowered.com/) 实现代理服务器集成
-- 依赖 [MaxMind GeoIP2](https://www.maxmind.com/) 提供 IP 地址的国家定位功能
+- Depends on the [Velocity API](https://velocitypowered.com/) for proxy server integration.
+- Depends on [MaxMind GeoIP2](https://www.maxmind.com/) to provide the country location function of IP addresses.
