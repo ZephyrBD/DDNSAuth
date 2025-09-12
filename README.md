@@ -8,6 +8,7 @@ DDNSAuth is a plugin based on the Velocity proxy server. It restricts server acc
 - **Internal Network Restriction**: Allows the configuration of specific internal network CIDR segments for direct access.
 - **Loopback Address Control**: It can be configured whether to allow access from loopback addresses such as 127.0.0.1 or 0.0.0.0.
 - **Regional Whitelist**: Verifies the region to which the client IP belongs through the GeoIP2 database, and only allows access from regions within the whitelist.
+- **i18n support**: You can change the prompt language by modifying the messages.
 
 ## Installation Steps
 
@@ -22,9 +23,6 @@ DDNSAuth is a plugin based on the Velocity proxy server. It restricts server acc
 3. **Configure the GeoIP2 Database** (Optional, for the regional restriction feature):
    - Download the [GeoLite2 - Country database](https://support.maxmind.com/hc/en-us/articles/4408216129947-Download-and-Update-Databases).
    - Place the database file (`GeoLite2 - Country.mmdb`) in the `plugins/ddnsauth` directory (or the path specified in the configuration file).
-
-4. **Multilingual support**:
-   - You can change the prompt language by modifying the messages.
 
 ## Configuration Instructions
 
