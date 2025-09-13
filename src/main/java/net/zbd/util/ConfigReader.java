@@ -45,7 +45,7 @@ public class ConfigReader {
             geoipError = "GeoIP2 lookup failed: {ip}"
             ipError = "IP lookup error: {ip}"
 
-            [command.reload]
+            [command]
             usage = "Usage: /ddnsreload <config|messages|all>"
             config = "Config file reloaded!"
             messages = "Language file reloaded!"

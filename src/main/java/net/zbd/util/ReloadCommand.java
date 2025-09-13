@@ -4,7 +4,6 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.zbd.util.ConfigReader;
 
 public class ReloadCommand implements SimpleCommand {
 
@@ -15,7 +14,7 @@ public class ReloadCommand implements SimpleCommand {
 
         if (args.length == 0) {
             source.sendMessage(Component.text(
-                    ConfigReader.t("command.reload.usage"),
+                    ConfigReader.t("command.usage"),
                     NamedTextColor.YELLOW
             ));
             return;
@@ -25,14 +24,14 @@ public class ReloadCommand implements SimpleCommand {
             case "config" -> {
                 ConfigReader.loadConfig();
                 source.sendMessage(Component.text(
-                        ConfigReader.t("command.reload.config"),
+                        ConfigReader.t("command.config"),
                         NamedTextColor.GREEN
                 ));
             }
             case "messages" -> {
-                ConfigReader.loadMessages(); // 根据当前配置的语言重载
+                ConfigReader.loadMessages();
                 source.sendMessage(Component.text(
-                        ConfigReader.t("command.reload.messages"),
+                        ConfigReader.t("command.messages"),
                         NamedTextColor.GREEN
                 ));
             }
@@ -40,12 +39,12 @@ public class ReloadCommand implements SimpleCommand {
                 ConfigReader.loadConfig();
                 ConfigReader.loadMessages();
                 source.sendMessage(Component.text(
-                        ConfigReader.t("command.reload.all"),
+                        ConfigReader.t("command.all"),
                         NamedTextColor.GREEN
                 ));
             }
             default -> source.sendMessage(Component.text(
-                    ConfigReader.t("command.reload.unknown", java.util.Map.of("arg", args[0])),
+                    ConfigReader.t("command.unknown", java.util.Map.of("arg", args[0])),
                     NamedTextColor.RED
             ));
         }
